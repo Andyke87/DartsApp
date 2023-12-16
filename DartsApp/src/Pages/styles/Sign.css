@@ -1,0 +1,38 @@
+.custom-input-text-color {
+    color: black !important;
+}
+.custom-button {
+    background-color: red;
+    font-size: larger;
+    color: white !important;
+    padding: 5px;
+    width: 10vh;
+    height: 5vh;
+    box-shadow: darkred 0px 0px 20px 0px;
+    border-radius: 5px;
+}
+.custom-link{
+    margin: 20px 0px;
+    font-size: medium;
+    font-weight: bold;
+    text-decoration-line: underline;
+    display: block;
+}
+.link-to {
+    color: red;
+    font-size: 32px;
+    margin: 20px 0px;
+    font-weight: bold;
+    text-decoration-line: underline;
+}
+label {
+    font-size: larger; 
+}
+.toggle-button{
+    font-weight: bold;
+    margin-left: 8px;
+}
+.logoSign{
+    margin-top: 56px;
+}
+
