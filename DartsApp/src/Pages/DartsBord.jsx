@@ -1,14 +1,17 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react';
-import './styles/DartsBord.css';
-import Border from './Border';
+import Border from '../components/Border';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
+import Players from '../components/Players';
+import GameOptions from '../components/GameOptions';
+import Score from '../components/Score';
+import './styles/DartsBord.css';
 
 const DartsBord = () => {
   const [dartboard, setDartboard] = useState([]);
-  const [selectedGame, setSelectedGame] = useState('');
-  const [selectedPlayers, setSelectedPlayers] = useState('');
+  const [selectedGame, setSelectedGame] = useState('301');
+  const [selectedPlayers, setSelectedPlayers] = useState('single');
   const [currentPlayer, setCurrentPlayer] = useState(1);
   const [clicksRemaining, setClicksRemaining] = useState(3);
   const [initialScore, setInitialScore] = useState(0);
@@ -29,14 +32,17 @@ const DartsBord = () => {
       case '701':
         return 701;
       default:
-        return 301;
+        return 0;
     }
   };
 
-  useEffect(() => {
-    // Stel de initiële score in bij het wijzigen van het geselecteerde spel
-    setInitialScore(getInitialScore(selectedGame));
-  }, [selectedGame]);
+  const handlePlayerSelection = (playerType) => {
+    setSelectedPlayers(playerType);
+  };
+
+  const handleGameSelection = (gameOption) => {
+    setSelectedGame(gameOption);
+  };
 
   const handleFieldClick = (field) => {
     if (clicksRemaining > 0) {
@@ -60,18 +66,16 @@ const DartsBord = () => {
 
       const remainingScore = getRemainingScore();
 
-      console.log(`Selected Game: ${selectedGame}`);
-      console.log(`Initial Score: ${initialScore}`);
-      console.log(`Total Throw: ${totalThrow}`);
-      console.log(`Remaining Score Before Throw: ${remainingScore}`);
-
       if (totalThrow > remainingScore) {
-        alert(`Beurt voorbij. Te hoge worp.`);
+        alert(`Turn is over, throw to high.`);
         setSnackbarOpen(true);
       } else {
         let newScore = remainingScore - totalThrow;
         setPlayerScore(newScore);
-        console.log(`Remaining Score After Throw: ${newScore}`);
+
+        if (newScore === 0) {
+          alert(`Player ${currentPlayer} has won!`);
+        }
       }
 
       setTimeout(() => {
@@ -103,75 +107,57 @@ const DartsBord = () => {
   };
 
   const handleGameStart = async () => {
-    if (selectedGame === '' || selectedPlayers === '') {
-      alert('Please select game type and players before starting the game.');
-      return;
-    }
 
-    // Reset de initiële score bij het starten van het spel
     setInitialScore(getInitialScore(selectedGame));
     setPlayer1Score(getInitialScore(selectedGame));
     setPlayer2Score(getInitialScore(selectedGame));
   };
 
   return (
-    <div className='dartsGame '>
+    <div className='dartsGame'>
       <div className='spel'>
-        <div>
-          <label className='gameLabel'>Select Game:</label>
-          <select onChange={(e) => setSelectedGame(e.target.value)}>
-            <option value="">Select</option>
-            <option value="301">301</option>
-            <option value="501">501</option>
-            <option value="701">701</option>
-          </select>
+        <div className='selectGame'>
+          <Players selectedPlayers={selectedPlayers} handlePlayerSelection={handlePlayerSelection} />
+        </div>
+        <div className='selectGame'>
+          <GameOptions selectedGame={selectedGame} handleGameSelection={handleGameSelection} />
         </div>
         <div>
-          <label className='gameLabel'>Select Players:</label>
-          <select onChange={(e) => setSelectedPlayers(e.target.value)}>
-            <option value="">Select</option>
-            <option value="single">Single Player</option>
-            <option value="two">Two Players</option>
-            <option value="robot">Against Robot</option>
-          </select>
+          <button className='start-game' onClick={handleGameStart}>
+            Start Game
+          </button>
         </div>
-        <button className='start-game' onClick={handleGameStart}>Start Game</button>
-      </div>
-      <div className="darts-board">
         <div className="thrown-darts">
-          <div className="dart-throw">{throw1 !== null ? throw1 : '-'}</div>
-          <div className="dart-throw">{throw2 !== null ? throw2 : '-'}</div>
-          <div className="dart-throw">{throw3 !== null ? throw3 : '-'}</div>
-        </div>
-        <div className='bordLineUp'>
-          <div className='spelerNaam'>
-            <h1>Player 1</h1>
-            <p>{player1Score}</p>
+          <div>
+            <label htmlFor="arrow1"> Arrow 1</label>
+            <div className="dart-throw">{throw1 !== null ? throw1 : '-'}</div>
           </div>
-          <div className='bord'>
-          <Border  handleFieldClick={handleFieldClick} />
+          <div>
+            <label htmlFor="arrow2"> Arrow 2</label>
+            <div className="dart-throw">{throw2 !== null ? throw2 : '-'}</div>
           </div>
-          {selectedPlayers !== 'single' && selectedPlayers !== '' && (
-            <div className='spelerNaam'>
-              <h1>{selectedPlayers === 'two' ? 'speler 2' : 'Robot'}</h1>
-              <p>{selectedPlayers === 'two' || selectedPlayers === 'robot' ? player2Score : ' '}</p>
-            </div>
-          )}
+          <div>
+            <label htmlFor="arrow3"> Arrow 3</label>
+            <div className="dart-throw">{throw3 !== null ? throw3 : '-'}</div>
+          </div>
         </div>
       </div>
-      <div className='score'>
-        <h2>Huidige beurt:</h2>
-        <p>Speler {currentPlayer} is aan de beurt.</p>
-        {clicksRemaining > 0 && <p>Klikken over: {clicksRemaining}</p>}
-        {clicksRemaining === 0 && (
-          <p>{selectedPlayers !== 'single' ? 'Volgende speler is aan de beurt.' : 'Einde beurt.'}</p>
+
+      <div className="darts-board">
+        <Score className={'player1'} player={1} score={player1Score} isCurrentPlayer={currentPlayer === 1} />
+        <div className='bord'>
+          <Border handleFieldClick={handleFieldClick} />
+        </div>
+        {selectedPlayers !== 'single' && selectedPlayers !== '' && (
+          <Score className={'player'} player={2} score={selectedPlayers === 'two' || selectedPlayers === 'robot' ? player2Score : ' '} isCurrentPlayer={currentPlayer === 2} />
         )}
       </div>
+
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={2000}
         onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}>
+        anchorOrigin={{ vertical: 'top', horizontal: 'left' }}>
         <MuiAlert elevation={10} variant="filled" severity="info">
           {selectedPlayers === 'single' ? 'Volgende beurt.' : `Volgende speler is aan de beurt.`}
         </MuiAlert>

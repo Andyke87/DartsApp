@@ -29,7 +29,7 @@ function App() {
         </div>
         <div>
           <NavLink to="/info">
-            Info
+            Practical info
           </NavLink>
         </div>
       </div>
